@@ -16,6 +16,10 @@ const User = mongoose.model('user',{
     avatar: {
         type: String,
         required: true
+    },
+    cart: {
+        type: Array,
+        require: false
     }
 });
 

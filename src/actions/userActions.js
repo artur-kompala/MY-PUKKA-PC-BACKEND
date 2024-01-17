@@ -83,6 +83,31 @@ class UserActions{
         });
         res.status(200).json({ message: "Token is valid.", user: req.body.user });
     }
+    async addCart(req,res){
+      const {user} = req.query
+      const data = req.body
+      
+      try {
+        await User.updateOne({ fullName: user }, { $set: { cart: data} });
+        res.status(200).json({ message: "Cart updated successfully" });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Internal server error" });
+      }
+      
+
+    }
+    async getCart(req,res){
+      const {user} = req.query
+      console.log(user);
+      try {
+        const data = await User.find({fullName: user},{cart: 1,_id: 0});
+        res.status(200).json(data);
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Internal server error" });
+      }
+    }
 
 }
 module.exports = new UserActions()
