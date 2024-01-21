@@ -24,6 +24,12 @@ const Cpu =  mongoose.model('cpu',{
     },
     smt: {
         type:Boolean
+    },
+    gid: {
+        type: String
+    },
+    manufacture:{
+        type: String
     }
 })
 

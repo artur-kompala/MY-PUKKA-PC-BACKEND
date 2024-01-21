@@ -1,5 +1,4 @@
 const Cpu = require("../db/models/cpu");
-
 class CpuActions {
   async getAllCpu(req,res) {
       
@@ -49,11 +48,11 @@ class CpuActions {
       if(manufactures == 'null'){
         query = {}
       }
+      const totalCount = await Cpu.countDocuments(query);
       
-      console.log(query);
       Cpu.find(query).sort({[field]: order}).skip(skip).limit(itemsPerPage)
         .then(doc=>{
-        res.status(200).json(doc)
+        res.status(200).json({data: doc,total: totalCount})
         }).catch(err=>{
         return res.status(500).json({message: err.message})
       })
