@@ -1,6 +1,7 @@
 const Cpu = require("../db/models/cpu");
 const Product = require("../db/models/product");
 const sdk = require("api")("@priceapi/v2#5p92b2flo464cum");
+const options = { upsert: true };
 
 class ProductActions {
   async getProduct(req, res) {
@@ -17,7 +18,6 @@ class ProductActions {
   }
   async updateProduct() {
     const job_id = [];
-    console.log("kurwa");
     try {
       const cpuGid = await Cpu.find(
         {},
@@ -29,7 +29,6 @@ class ProductActions {
         const manufacture = item.manufacture;
 
         const full = manufacture + " " + name;
-        console.log(full);
 
         sdk.auth(process.env.API_KEY);
         sdk
@@ -73,11 +72,12 @@ class ProductActions {
           $set: { name: name, data: data },
           $push: { date: `${day}.${month}.${year}`,price: lowestPrice},
         };
-        const options = { upsert: true };
+       
 
         Product.updateOne(filter, update, options)
           .then((result) => {
             console.log("Aktualizacja zakończona pomyślnie");
+            this.getPrice()
           })
           .catch((error) => {
             console.error(
@@ -104,6 +104,30 @@ class ProductActions {
         }
       })
       .catch((err) => console.error(err));
+  }
+  async getPrice(){
+    
+     const productPrice =  await Product.find({})
+     productPrice.map(item=>{
+
+      const splitName = item.name.split(" ", 2);
+      const manufacture = splitName[0];
+      const name = item.name.substring(manufacture.length).trim();
+      const query = { manufacture: manufacture, name: name };
+      const newValues = { $set: {price: item.price.at(-1),process: process}};
+      Cpu.updateOne(query,newValues,options)
+      .then((result) => {
+        console.log("Aktualizacja cen zakończona pomyślnie");
+      })
+      .catch((error) => {
+        console.error(
+          "Wystąpił błąd podczas aktualizacji cen",
+          error
+        );
+      });
+     })
+     
+    
   }
 }
 module.exports = new ProductActions();

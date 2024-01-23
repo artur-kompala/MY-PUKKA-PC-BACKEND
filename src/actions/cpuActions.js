@@ -2,8 +2,8 @@ const Cpu = require("../db/models/cpu");
 class CpuActions {
   async getAllCpu(req,res) {
       
-      let { page, sortBy, manufactures, graphic,smt,coreCountMin,coreCountMax,coreClockMin,coreClockMax,boostClockMin,boostClockMax,tdpMin,tdpMax,priceMin,priceMax,scoreMin,scoreMax} = req.query;
-      sortBy = sortBy || "Rank-desc"
+      let { page, sortBy, manufactures, graphic,smt,coreCountMin,coreCountMax,coreClockMin,coreClockMax,boostClockMin,boostClockMax,tdpMin,tdpMax,priceMin,priceMax,socket,coreFamily} = req.query;
+      sortBy = sortBy || "rank-desc"
       page = page || 1;
 
 
@@ -20,7 +20,11 @@ class CpuActions {
         
       };
       
+      
+
+      
       if (manufactures !== 'All') {
+        console.log(manufactures);
         query.manufacture = manufactures;
       }
       if (smt !== 'All') {
@@ -57,14 +61,7 @@ class CpuActions {
         return res.status(500).json({message: err.message})
       })
   }
-  async countCpu(req,res){
-    Cpu.find({}).count()
-        .then(doc=>{
-        res.status(200).json(doc)
-        }).catch(err=>{
-        return res.status(500).json({message: err.message})
-    })
-  }
+  
   
 }
 

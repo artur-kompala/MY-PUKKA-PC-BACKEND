@@ -4,11 +4,29 @@ const Cpu =  mongoose.model('cpu',{
     name: {
         type:String
     },
-    price: {
+    manufacture:{
+        type: String
+    },
+    process:{
+        type:String
+    },
+    socket:{
+        type: String
+    },
+    core_family:{
+        type: String
+    },
+    smt: {
+        type:Boolean
+    },
+    graphics: {
+        type:String
+    },
+    tdp: {
         type:Number
     },
-    core_count: {
-        type:Number
+    pbp:{
+        type: Number
     },
     core_clock: {
         type:Number
@@ -16,21 +34,34 @@ const Cpu =  mongoose.model('cpu',{
     boost_clock: {
         type:Number
     },
-    tdp: {
+    core_count: {
         type:Number
     },
-    graphics: {
-        type:String
+    price: {
+        type:Number
     },
-    smt: {
-        type:Boolean
+    pcie: {
+        type:Number
+    },
+    chipset:{
+        type:Array
+    },
+    memory_type:{
+        type:Array
+    },
+    benchmark:{
+        type: Number
+    },
+    smaples:{
+        type: Number
+    },
+    rank:{
+        type: Number
     },
     gid: {
         type: String
     },
-    manufacture:{
-        type: String
-    }
+    
 })
 
 module.exports = Cpu;

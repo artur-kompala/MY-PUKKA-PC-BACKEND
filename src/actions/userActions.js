@@ -61,7 +61,7 @@ class UserActions{
             }
           } catch (error) {
             console.error(error);
-            res.status(500).send("Internal Server Error");
+            return res.status(500).send("Internal Server Error");
           }
     }
     async verifyUser(req,res){
@@ -69,19 +69,19 @@ class UserActions{
         const token = req.body.token;
         
         if (!token) {
-            return res
-            .status(401)
-            .json({ error: "Unauthorized", message: "Token not provided." });
+            return res.status(401).json({ error: "Unauthorized", message: "Token not provided." });
         }
         jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
             if (err) {
             return res
                 .status(401)
                 .json({ error: "Unauthorized", message: "Invalid token." });
+            }else{
+              return res.status(200).json({ message: "Token is valid.", user: req.body.user });
             }
-            req.user = decoded;
+            
         });
-        res.status(200).json({ message: "Token is valid.", user: req.body.user });
+        
     }
     async addCart(req,res){
       const {user} = req.query
