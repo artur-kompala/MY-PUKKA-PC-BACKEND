@@ -5,13 +5,13 @@ const cpuActions = require('../actions/cpuActions')
 const productActions = require('../actions/productActions')
 
 router.get('/cpu', cpuActions.getAllCpu)
+router.get('/getOneCpu',cpuActions.getOneCpu)
 //router.post('/singup', usersActions.signupUser)
 router.post('/login' ,userActions.loginUser) 
 router.post('/verify-token' ,userActions.verifyUser) 
 router.post('/addCart' ,userActions.addCart)
 router.get('/getCart' ,userActions.getCart)  
 router.post('/getProduct',productActions.getProduct)
-productActions.getPrice()
 
 
 

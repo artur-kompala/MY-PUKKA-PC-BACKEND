@@ -107,14 +107,13 @@ class ProductActions {
   }
   async getPrice(){
     
-     const productPrice =  await Product.find({})
+     const productPrice =  await Product.find({},{_id:0,name: 1,price: 1})
      productPrice.map(item=>{
-
       const splitName = item.name.split(" ", 2);
       const manufacture = splitName[0];
       const name = item.name.substring(manufacture.length).trim();
       const query = { manufacture: manufacture, name: name };
-      const newValues = { $set: {price: item.price.at(-1),process: process}};
+      const newValues = { $set: { price: item.price.at(-1) } };
       Cpu.updateOne(query,newValues,options)
       .then((result) => {
         console.log("Aktualizacja cen zakończona pomyślnie");

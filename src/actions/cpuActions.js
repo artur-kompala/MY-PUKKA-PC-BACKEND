@@ -24,7 +24,6 @@ class CpuActions {
 
       
       if (manufactures !== 'All') {
-        console.log(manufactures);
         query.manufacture = manufactures;
       }
       if (smt !== 'All') {
@@ -56,10 +55,32 @@ class CpuActions {
       
       Cpu.find(query).sort({[field]: order}).skip(skip).limit(itemsPerPage)
         .then(doc=>{
-        res.status(200).json({data: doc,total: totalCount})
+        return res.status(200).json({data: doc,total: totalCount})
         }).catch(err=>{
         return res.status(500).json({message: err.message})
       })
+  }
+  async getOneCpu(req,res){
+      const {name} = req.query
+      function extractFirstWord(sentence) {
+        const words = sentence.split(' ');
+        if (words.length > 0) {
+            const firstWord = words[0];
+            const remainingSentence = words.slice(1).join(' ');
+            return [firstWord, remainingSentence];
+        } else {
+            return [null, null];
+        }
+    }
+    const [first, rest] = extractFirstWord(name);
+      Cpu.findOne({name: rest,manufacture: first})
+      .then(doc=>{
+        return res.status(200).json({data: doc})
+      })
+      .catch(err=>{
+        return res.status(500).json({message: err.message})
+      })
+      
   }
   
   
