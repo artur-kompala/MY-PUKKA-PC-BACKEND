@@ -1,33 +1,28 @@
 const Cpu = require("../db/models/cpu");
+const {itemsPerPage} = require('../config')
 class CpuActions {
   async getAllCpu(req,res) {
       
       let { page, sortBy, manufactures, graphic,smt,coreCountMin,coreCountMax,coreClockMin,coreClockMax,boostClockMin,boostClockMax,tdpMin,tdpMax,priceMin,priceMax,socket,coreFamily} = req.query;
-      sortBy = sortBy || "rank-desc"
-      page = page || 1;
-
 
       const [field, order] = sortBy.split('-');
       order === 'asc' ? 1 : -1 
-        
-      
-
-      const itemsPerPage = 10;
+  
       const skip = (page - 1) * itemsPerPage;
 
-      //[field]: { $exists: true}
-      let query = {
-        
-      };
-      
-      
-
+      let query = {};
       
       if (manufactures !== 'All') {
         query.manufacture = manufactures;
       }
       if (smt !== 'All') {
         query.smt = smt;
+      }
+      if (coreFamily !== 'All') {
+        query.core_family = coreFamily;
+      }
+      if (socket !== 'All') {
+        query.socket = socket;
       }
       if (graphic !== 'All') {
         if(graphic === 'No')query.graphics = {$eq: null};
@@ -51,6 +46,7 @@ class CpuActions {
       if(manufactures == 'null'){
         query = {}
       }
+
       const totalCount = await Cpu.countDocuments(query);
       
       Cpu.find(query).sort({[field]: order}).skip(skip).limit(itemsPerPage)

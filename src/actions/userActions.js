@@ -88,7 +88,7 @@ class UserActions{
       const data = req.body
       
       try {
-        await User.updateOne({ fullName: user }, { $set: { cart: data} });
+        await User.updateOne({ fullName: user }, {$set: {[`cart.${data.type}`]: data.data }},{ upsert: true });
         res.status(200).json({ message: "Cart updated successfully" });
       } catch (error) {
         console.error(error);

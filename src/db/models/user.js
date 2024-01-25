@@ -18,7 +18,7 @@ const User = mongoose.model('user',{
         required: true
     },
     cart: {
-        type: Array,
+        type: Object,
         require: false
     }
 });
