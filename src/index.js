@@ -19,4 +19,4 @@ app.listen(port,function(){
 });
 
 
-cron.schedule('03 1 * * *', ()=>runDailyJob());
+cron.schedule('37 16 * * *', ()=>runDailyJob());

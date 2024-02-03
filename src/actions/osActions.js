@@ -1,19 +1,13 @@
-const CpuCooler = require("../db/models/cpuCooler");
+const Os = require("../db/models/os");
 const { itemsPerPage } = require("../config");
-class CpuCoolerActions {
-  async getAllCpuCooler(req, res) {
+class OsActions {
+  async getAllOs(req, res) {
     let {
       page,
       sortBy,
-      manufactures,
-      type,
-      socket,
+      max_memory,
       priceMin,
       priceMax,
-      tdpMin,
-      tdpMax,
-      sizeMin,
-      sizeMax,
     } = req.query;
 
     const [field, order] = sortBy.split("-");
@@ -21,31 +15,20 @@ class CpuCoolerActions {
     const skip = (page - 1) * itemsPerPage;
     let query = {};
 
-    if (manufactures !== "All") {
-      query.manufacture = manufactures;
-    }
-    if (type !== "All") {
-      query.type = type;
-    }
-    if (socket !== "All") {
-      query.socket = { $elemMatch: { $eq: socket } };
-    }
-    if (tdpMin && tdpMax) {
-      query.tdp = { $gte: tdpMin, $lte: tdpMax };
+    
+    if (max_memory !== "All") {
+      query.max_memory = parseInt(max_memory);
     }
     if (priceMin && priceMax) {
       query.price = { $gte: priceMin, $lte: priceMax };
     }
-    if (sizeMin && sizeMax) {
-      query.size = { $gte: sizeMin, $lte: sizeMax };
-    }
-    if (manufactures == "null" || socket == "null" || type == "null") {
+    if (max_memory == "null") {
       query = {};
     }
 
-    const totalCount = await CpuCooler.countDocuments(query);
+    const totalCount = await Os.countDocuments(query);
 
-    CpuCooler.find(query)
+    Os.find(query)
       .sort({ [field]: order })
       .skip(skip)
       .limit(itemsPerPage)
@@ -57,7 +40,7 @@ class CpuCoolerActions {
       });
   }
 
-  async getOneCpuCooler(req, res) {
+  async getOneOs(req, res) {
     const { name } = req.query;
     function extractFirstWord(sentence) {
       const words = sentence.split(" ");
@@ -70,7 +53,7 @@ class CpuCoolerActions {
       }
     }
     const [first, rest] = extractFirstWord(name);
-    CpuCooler.findOne({ name: rest, manufacture: first })
+    Os.findOne({ name: rest, manufacture: first })
       .then((doc) => {
         return res.status(200).json({ data: doc });
       })
@@ -78,18 +61,14 @@ class CpuCoolerActions {
         return res.status(500).json({ message: err.message });
       });
   }
-  async getCpuCoolerFilters(req, res) {
-    const manufacture = await CpuCooler.distinct("manufacture");
-    const type = await CpuCooler.distinct("type");
-    const socket = await CpuCooler.distinct("socket");
-    const maxMin = await CpuCooler.aggregate([
+  async getOsFilters(req, res) {
+    const max_memory = await Os.distinct("max_memory");
+    const maxMin = await Os.aggregate([
       {
         $group: {
           _id: null,
           maxPrice: { $max: "$price" },
           minPrice: { $min: "$price" },
-          maxTdp: { $max: "$tdp" },
-          minTdp: { $min: "$tdp" },
         },
       },
     ]);
@@ -97,12 +76,10 @@ class CpuCoolerActions {
     return res
       .status(200)
       .json({
-        manufacture: manufacture,
-        type: type,
-        socket: socket,
+        max_memory: max_memory,
         maxMin: maxMin,
       });
   }
 }
 
-module.exports = new CpuCoolerActions();
+module.exports = new OsActions();

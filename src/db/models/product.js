@@ -4,10 +4,7 @@ const Product =  mongoose.model('product',{
     name: {
         type:String
     },
-    price: {
-        type: Array
-    },
-    date: {
+    chart: {
         type: Array
     },
     data: {

@@ -78,6 +78,37 @@ class CpuActions {
       })
       
   }
+  async getCpuFilters(req, res) {
+    const manufacture = await Cpu.distinct("manufacture");
+    const coreFamily = await Cpu.distinct("core_family");
+    const socket = await Cpu.distinct("socket");
+    const maxMin = await Cpu.aggregate([
+      {
+        $group: {
+          _id: null,
+          maxPrice: { $max: "$price" },
+          minPrice: { $min: "$price" },
+          maxTdp: { $max: "$tdp" },
+          minTdp: { $min: "$tdp" },
+          maxCoreClock: { $max: "$core_clock" },
+          minCoreClock: { $min: "$core_clock" },
+          maxCoreCount: { $max: "$core_count" },
+          minCoreCount: { $min: "$core_count" },
+          maxBoostClock: { $max: "$boost_clock" },
+          minBoostClock: { $min: "$boost_clock" },
+        },
+      },
+    ]);
+
+    return res
+      .status(200)
+      .json({
+        manufacture: manufacture,
+        coreFamily: coreFamily,
+        socket: socket,
+        maxMin: maxMin,
+      });
+  }
   
   
 }

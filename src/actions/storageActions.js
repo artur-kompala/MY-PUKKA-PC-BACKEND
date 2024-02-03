@@ -1,20 +1,23 @@
-const Gpu = require("../db/models/gpu");
+const Storage = require("../db/models/storage");
 const { itemsPerPage } = require("../config");
-class GpuActions {
-  async getAllGpu(req, res) {
+class StorageActions {
+  async getAllStorage(req, res) {
     let {
       page,
       sortBy,
       manufactures,
-      chipset,
-      pcie,
-      fg,
-      memoryMin,
-      memoryMax,
+      type,
+      inter,
+      readMin,
+      readMax,
+      writeMin,
+      writeMax,
+      capacityMin,
+      capacityMax,
       priceMin,
-      priceMax,
+      priceMax
     } = req.query;
-    console.log(manufactures);
+    console.log(capacityMin);
 
     const [field, order] = sortBy.split("-");
     order === "asc" ? 1 : -1;
@@ -24,35 +27,36 @@ class GpuActions {
     if (manufactures !== "All") {
       query.manufacture = manufactures;
     }
-    if (fg !== "All") {
-      query.fg = fg;
+    if (type !== "All") {
+      query.type = type;
     }
-    if (pcie !== "All") {
-      query.pcie = parseInt(pcie);
-    }
-    if (chipset !== "All") {
-      query.chipset = chipset;
+    if (inter !== "All") {
+      query.interface = inter;
     }
     if (priceMin && priceMax) {
       query.price = { $gte: priceMin, $lte: priceMax };
     }
-    if (memoryMin && memoryMax) {
-      query.memory = { $gte: memoryMin, $lte: memoryMax };
+    if (readMin && readMax) {
+      query.read = { $gte: readMin, $lte: readMax };
+    }
+    if (writeMin && writeMax) {
+      query.write = { $gte: writeMin, $lte: writeMax };
+    }
+    if (capacityMin && capacityMax) {
+      query.capacity = { $gte: capacityMin, $lte: capacityMax };
     }
     if (
       manufactures == "null" ||
-      fg == "null" ||
-      pcie == "null" ||
-      chipset == "null"
+      type == "null" ||
+      inter == "null"
     ) {
       query = {};
     }
     console.log(query);
 
+    const totalCount = await Storage.countDocuments(query);
 
-    const totalCount = await Gpu.countDocuments(query);
-
-    Gpu.find(query)
+    Storage.find(query)
       .sort({ [field]: order })
       .skip(skip)
       .limit(itemsPerPage)
@@ -64,7 +68,7 @@ class GpuActions {
       });
   }
 
-  async getOneGpu(req, res) {
+  async getOneStorage(req, res) {
     const { name } = req.query;
     function extractFirstWord(sentence) {
       const words = sentence.split(" ");
@@ -77,7 +81,7 @@ class GpuActions {
       }
     }
     const [first, rest] = extractFirstWord(name);
-    Gpu.findOne({ name: rest, manufacture: first })
+    Storage.findOne({ name: rest, manufacture: first })
       .then((doc) => {
         return res.status(200).json({ data: doc });
       })
@@ -86,46 +90,48 @@ class GpuActions {
       });
   }
 
-  async getGpuFilters(req, res) {
-    const manufacture = await Gpu.distinct("manufacture");
-    const chipset = await Gpu.distinct("chipset");
-    const pcie = await Gpu.distinct("pcie");
-    const fg = await Gpu.distinct("fg");
-    const maxMin = await Gpu.aggregate([
+  async getStorageFilters(req, res) {
+    const manufacture = await Storage.distinct("manufacture");
+    const inter = await Storage.distinct("interface");
+    const type = await Storage.distinct("type");
+    const maxMin = await Storage.aggregate([
       {
         $group: {
           _id: null,
           maxPrice: { $max: "$price" },
           minPrice: { $min: "$price" },
-          maxMemory: { $max: "$memory" },
-          minMemory: { $min: "$memory" },
-          maxLength: { $max: "$length" },
-          minLength: { $min: "$length" },
+          maxRead: { $max: "$read" },
+          minRead: { $min: "$read" },
+          maxWrite: { $max: "$write" },
+          minWrite: { $min: "$write" },
+          maxCapacity: { $max: "$capacity" },
+          minCapacity: { $min: "$capacity" },
         },
       },
     ]);
 
     return res.status(200).json({
       manufacture: manufacture,
-      fg: fg,
-      chipset: chipset,
-      pcie: pcie,
+      inter: inter,
+      type: type,
       maxMin: maxMin,
     });
   }
-  async addRankToGpu(req, res) {
+  async addRankToStorage(req, res) {
     try {
-      const cursor = await Gpu.find({}).sort({ score: -1 });
+      const cursor = await Storage.find({}).sort({ score: -1 });
       let rank = 1;
-      for await (const doc of cursor) { 
+      for await (const doc of cursor) {
+        
         const filter = { _id: doc._id };
         const updateDoc = {
           $set: { rank: rank++ },
         };
         try {
-          await Gpu.updateOne(filter, updateDoc); 
+          await Storage.updateOne(filter, updateDoc);
+          console.log(updateDoc); 
         } catch (updateError) {
-          console.error(updateError); 
+          console.error(updateError);
         }
       }
     } catch (error) {
@@ -134,4 +140,4 @@ class GpuActions {
   }
 }
 
-module.exports = new GpuActions();
+module.exports = new StorageActions();

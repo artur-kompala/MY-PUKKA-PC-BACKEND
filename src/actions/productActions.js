@@ -5,11 +5,12 @@ const options = { upsert: true };
 
 class ProductActions {
   async getProduct(req, res) {
-    const name = req.body.name;
-    console.log(name);
+    
+    const {name,last} = req.query;
     try {
-      await Product.find({ name: name }).then((doc) =>
+      await Product.find({name},{chart: {$slice: -last}}).then((doc) =>{
         res.status(200).json(doc)
+      }
       );
     } catch (error) {
       console.error(error);
@@ -63,14 +64,10 @@ class ProductActions {
         }, priceCheck[0]);
 
         const today = new Date();
-        const day = String(today.getDate()).padStart(2, "0");
-        const month = String(today.getMonth() + 1).padStart(2, "0");
-        const year = today.getFullYear();
-        console.log(lowestPrice);
         const filter = { name: name };
         const update = {
           $set: { name: name, data: data },
-          $push: { date: `${day}.${month}.${year}`,price: lowestPrice},
+          $push: { chart: {date: today,price: lowestPrice}},
         };
        
 
@@ -107,13 +104,14 @@ class ProductActions {
   }
   async getPrice(){
     
-     const productPrice =  await Product.find({},{_id:0,name: 1,price: 1})
+     const productPrice =  await Product.find({},{_id:0,name: 1,chart: 1})
      productPrice.map(item=>{
       const splitName = item.name.split(" ", 2);
       const manufacture = splitName[0];
       const name = item.name.substring(manufacture.length).trim();
       const query = { manufacture: manufacture, name: name };
-      const newValues = { $set: { price: item.price.at(-1) } };
+      const newValues = { $set: { price: item.chart.at(-1).price } };
+
       Cpu.updateOne(query,newValues,options)
       .then((result) => {
         console.log("Aktualizacja cen zakończona pomyślnie");
