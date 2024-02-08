@@ -1,33 +1,37 @@
 const mongoose = require("mongoose");
 
-const Psu = mongoose.model("psu", {
-  name: {
+const Fan = mongoose.model("fan", {
+  manufacture: {
     type: String,
   },
-  manufacture: {
+  name: {
     type: String,
   },
   price: {
     type: Number,
   },
-  type: {
-    type: String,
-  },
-  efficiency: {
-    type: String,
-  },
-  wattage: {
-    type: Number,
-  },
-  modular: {
-    type: Boolean,
-  },
   color: {
     type: String,
   },
+  size:{
+    type:Number,
+  },
+  noise: {
+    type: Number,
+  },
+  led: {
+    type: Boolean,
+  },
+  rpm: {
+    type: Number,
+  },
+  flow: {
+    type: Number,
+  },
   gid: {
     type: String,
-  }
+  },
+  
 });
 
-module.exports = Psu;
+module.exports = Fan;

@@ -8,6 +8,10 @@ const moboActions = require('../actions/moboActions')
 const gpuActions = require('../actions/gpuActions')
 const osActions = require('../actions/osActions')
 const storgaeActions = require('../actions/storageActions')
+const caseActions = require('../actions/caseActions')
+const psuActions = require('../actions/psuActions')
+const memoryActions = require('../actions/memoryActions')
+const fanActions = require('../actions/fanActions')
 
 //CPU
 router.get('/cpu', cpuActions.getAllCpu)
@@ -26,9 +30,21 @@ router.get('/gpu', gpuActions.getAllGpu)
 router.get('/getOneGpu',gpuActions.getOneGpu)
 router.get('/getGpuFilters' ,gpuActions.getGpuFilters)
 //RAM
+router.get('/memory', memoryActions.getAllMemory)
+router.get('/getOneMemory',memoryActions.getOneMemory)
+router.get('/getMemoryFilters' ,memoryActions.getMemoryFilters)
 //PSU
+router.get('/psu', psuActions.getAllPsu)
+router.get('/getOnePsu',psuActions.getOnePsu)
+router.get('/getPsuFilters' ,psuActions.getPsuFilters)
 //CASE
+router.get('/case', caseActions.getAllCase)
+router.get('/getOneCase',caseActions.getOneCase)
+router.get('/getCaseFilters' ,caseActions.getCaseFilters)
 //FAN
+router.get('/fan', fanActions.getAllFan)
+router.get('/getOneFan',fanActions.getOneFan)
+router.get('/getFanFilters' ,fanActions.getFanFilters)
 //STORAGE
 router.get('/storage', storgaeActions.getAllStorage)
 router.get('/getOneStorage',storgaeActions.getOneStorage)
@@ -38,11 +54,13 @@ router.get('/os', osActions.getAllOs)
 router.get('/getOneOs',osActions.getOneOs)
 router.get('/getOsFilters' ,osActions.getOsFilters)
 
+
 //router.post('/singup', usersActions.signupUser)
 router.post('/login' ,userActions.loginUser) 
 router.post('/verify-token' ,userActions.verifyUser) 
 router.post('/addCart' ,userActions.addCart)
 router.get('/getCart' ,userActions.getCart)  
+router.delete('/deleteItemCart',userActions.deleteItemCart)
 router.post('/getProduct',productActions.getProduct)
 
 

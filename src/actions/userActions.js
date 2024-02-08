@@ -99,9 +99,23 @@ class UserActions{
     }
     async getCart(req,res){
       const {user} = req.query
-      console.log(user);
       try {
         const data = await User.find({fullName: user},{cart: 1,_id: 0});
+        res.status(200).json(data);
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Internal server error" });
+      }
+    }
+    async deleteItemCart(req,res){
+      const {user,item} = req.query
+      console.log(user);
+      console.log(item);
+      try {
+        const data = await User.updateMany(
+          { "fullName": user },
+          { $unset: { [`cart.${item}`]: "" } }
+        )
         res.status(200).json(data);
       } catch (error) {
         console.error(error);

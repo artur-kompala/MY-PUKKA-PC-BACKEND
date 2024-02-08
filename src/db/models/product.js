@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 
 const Product =  mongoose.model('product',{
-    name: {
+    gid: {
         type:String
     },
     chart: {

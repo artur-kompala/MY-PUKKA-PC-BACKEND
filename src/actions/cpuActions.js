@@ -57,19 +57,9 @@ class CpuActions {
       })
   }
   async getOneCpu(req,res){
-      const {name} = req.query
-      function extractFirstWord(sentence) {
-        const words = sentence.split(' ');
-        if (words.length > 0) {
-            const firstWord = words[0];
-            const remainingSentence = words.slice(1).join(' ');
-            return [firstWord, remainingSentence];
-        } else {
-            return [null, null];
-        }
-    }
-    const [first, rest] = extractFirstWord(name);
-      Cpu.findOne({name: rest,manufacture: first})
+      const {gid} = req.query
+    
+      Cpu.findOne({gid: gid})
       .then(doc=>{
         return res.status(200).json({data: doc})
       })

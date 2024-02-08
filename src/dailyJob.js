@@ -18,8 +18,6 @@ function runDailyJob() {
   }
 }
 
-// Planowanie uruchomienia funkcji raz dziennie o godzinie 12:00
-
 
 
 module.exports = {
