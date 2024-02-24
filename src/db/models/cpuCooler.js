@@ -40,3 +40,4 @@ const CpuCooler = mongoose.model("cpuCooler", {
 });
 
 module.exports = CpuCooler;
+

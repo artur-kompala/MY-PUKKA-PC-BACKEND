@@ -132,6 +132,18 @@ class GpuActions {
       console.error(error); 
     }
   }
+  async gpuSuggestion(req,res){
+    const {_id,price,score} = req.body
+
+    try {
+        Gpu.find({score: {$gt: score},price: {$lt: price},_id: {$ne: _id}}).then((doc)=>{
+          console.log(doc);
+          return res.status(200).json(doc)
+        })
+    } catch (error) {
+        return res.status(500).json({message: err.message})
+    }
+  }
 }
 
 module.exports = new GpuActions();

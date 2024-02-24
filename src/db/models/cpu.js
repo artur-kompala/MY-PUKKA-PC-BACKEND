@@ -20,9 +20,12 @@ const Cpu =  mongoose.model('cpu',{
         type:Boolean
     },
     graphics: {
-        type:String
+        type:Boolean
     },
     tdp: {
+        type:Number
+    },
+    watts_usage:{
         type:Number
     },
     pbp:{
@@ -52,7 +55,7 @@ const Cpu =  mongoose.model('cpu',{
     benchmark:{
         type: Number
     },
-    smaples:{
+    samples:{
         type: Number
     },
     rank:{

@@ -22,6 +22,9 @@ const Gpu = mongoose.model("gpu", {
   color: {
     type: Array,
   },
+  length: {
+    type: Number,
+  },
   manufacture: {
     type: String,
   },
@@ -46,6 +49,9 @@ const Gpu = mongoose.model("gpu", {
   rank: {
     type: Number,
   },
+  samples: {
+    type: Number,
+  }
 });
 
 module.exports = Gpu;

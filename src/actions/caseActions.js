@@ -15,7 +15,7 @@ class CaseActions {
       cpu_cooler_lengthMin,
       cpu_cooler_lengthMax,
     } = req.query;
-
+    
     const [field, order] = sortBy.split("-");
     order === "asc" ? 1 : -1;
     const skip = (page - 1) * itemsPerPage;
