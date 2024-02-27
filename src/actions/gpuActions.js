@@ -137,7 +137,6 @@ class GpuActions {
 
     try {
         Gpu.find({score: {$gt: score},price: {$lt: price},_id: {$ne: _id}}).then((doc)=>{
-          console.log(doc);
           return res.status(200).json(doc)
         })
     } catch (error) {

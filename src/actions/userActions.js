@@ -30,21 +30,25 @@ class UserActions {
       };
       const existingUser = await User.findOne({ email: data.email });
       if (existingUser) {
-        return res.status(406).send('Użytkownik już istnieje');
+        return res.status(406).send("Użytkownik już istnieje");
       } else {
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(data.password, saltRounds);
         data.password = hashedPassword;
         const userdata = await User.insertMany(data);
-        return res.status(200).json({message: 'Użytkownik został zarejestrowany'});
+        return res
+          .status(200)
+          .json({ message: "Użytkownik został zarejestrowany" });
       }
     } catch (error) {
-      return res.status(500).send('Wewnętrzny błąd serwera');
+      return res.status(500).send("Wewnętrzny błąd serwera");
     }
   }
   async loginUser(req, res) {
     try {
       const check = await User.findOne({ email: req.body.email });
+      console.log(check.email);
+      console.log(check.admin);
       if (!check) {
         return res.status(401).json({
           error: "User not found",
@@ -69,7 +73,8 @@ class UserActions {
             role: "authenticated",
             user_metadata: {
               fullName: check.fullName,
-              avatar: check.avatar,
+              email: check.email,
+              admin: check.admin,
             },
           },
         });
@@ -186,20 +191,19 @@ class UserActions {
     }
   }
   async addGpuRank() {
-    const docs = await Gpu.find({}, {_id: 1}).sort({score: -1});
-  
+    const docs = await Gpu.find({}, { _id: 1 }).sort({ score: -1 });
+
     const bulkOps = docs.map((doc, index) => ({
       updateOne: {
-        filter: {_id: doc._id}, 
-        update: {$set: {rank: index + 1}} 
-      }
+        filter: { _id: doc._id },
+        update: { $set: { rank: index + 1 } },
+      },
     }));
-  
+
     if (bulkOps.length > 0) {
       await Gpu.bulkWrite(bulkOps);
     }
   }
-  
   async updateBenchmark(req, res) {
     const { collection } = req.body;
     const file = req.file;
@@ -208,38 +212,119 @@ class UserActions {
       if (file && collection === "gpu") {
         const bufferStream = new stream.PassThrough();
         bufferStream.end(file.buffer);
-      
+
         const parser = bufferStream.pipe(csv());
-      
-        const operations = []; 
-      
+
+        const operations = [];
+
         for await (const row of parser) {
           const newValues = {
             $set: {
               score: parseInt(row.Benchmark),
-              samples: parseInt(row.Samples)
-            }
+              samples: parseInt(row.Samples),
+            },
           };
-      
+
           operations.push({
             updateOne: {
               filter: { chipset: row.Model },
               update: newValues,
-              upsert: false
-            }
+              upsert: false,
+            },
           });
         }
-      
-        if(operations.length > 0) {
+
+        if (operations.length > 0) {
           await Gpu.bulkWrite(operations);
           await this.addGpuRank();
           return res.status(200).send({ message: "Benchmark update" });
         }
-        
       }
     } else {
       return res.status(400).send({ message: "File not sent" });
     }
+  }
+  async deleteProduct(req, res) {
+    const { collection, gid } = req.body;
+    try {
+      let deleteResult;
+      switch (collection) {
+        case "cpu":
+          deleteResult = await Cpu.deleteOne({ gid: gid });
+          break;
+        case "cooler":
+          deleteResult = await CpuCooler.deleteOne({ gid: gid });
+          break;
+        case "mobo":
+          deleteResult = await Mobo.deleteOne({ gid: gid });
+          break;
+        case "gpu":
+          deleteResult = await Gpu.deleteOne({ gid: gid });
+          break;
+        case "memory":
+          deleteResult = await Memory.deleteOne({ gid: gid });
+          break;
+        case "psu":
+          deleteResult = await Psu.deleteOne({ gid: gid });
+          break;
+        case "case":
+          deleteResult = await Case.deleteOne({ gid: gid });
+          break;
+        case "fan":
+          deleteResult = await Fan.deleteOne({ gid: gid });
+          break;
+        case "storage":
+          deleteResult = await Storage.deleteOne({ gid: gid });
+          break;
+        case "os":
+          deleteResult = await Os.deleteOne({ gid: gid });
+          break;
+        default:
+          return res
+            .status(400)
+            .send({ message: "Invalid collection specified." });
+      }
+
+      if (deleteResult && deleteResult.deletedCount === 0) {
+        return res.status(400).send({ message: "No product found to delete." });
+      }
+
+      res.status(200).send({ message: "Product deleted successfully" });
+    } catch (error) {
+      res
+        .status(500)
+        .send({ message: "An error occurred", error: error.message });
+    }
+  }
+  async updateUser(req, res) {
+    const { password, user, fullName } = req.query;
+    if (fullName && user && fullName !== 'undefined') {
+      try {
+        const updatedUser = await User.findOneAndUpdate(
+          { email: user },
+          { $set: { fullName: fullName } }
+        );
+        res.status(200).json(updatedUser);
+      } catch (error) {
+        console.error("Error updating user:", error);
+        res.status(500).json({ error: "Could not update user" });
+      }
+    }
+    if (password && user && password !== 'undefined') {
+      try {
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+        const updatedUser = await User.findOneAndUpdate(
+          { email: user },
+          { $set: { password: hashedPassword } }
+        );
+        res.status(200).json(updatedUser);
+      } catch (error) {
+        console.error("Error updating user:", error);
+        res.status(500).json({ error: "Could not update user" });
+      }
+    }
+    return;
   }
 }
 module.exports = new UserActions();

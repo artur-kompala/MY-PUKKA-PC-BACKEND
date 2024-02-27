@@ -16,7 +16,11 @@ const User = mongoose.model('user',{
     cart: {
         type: Object,
         require: false
-    }
+    },
+    admin: {
+        type: Boolean,
+        require: false
+    },
 });
 
 module.exports = User;

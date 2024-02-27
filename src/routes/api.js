@@ -18,6 +18,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 router.get('/cpu', cpuActions.getAllCpu)
 router.get('/getOneCpu',cpuActions.getOneCpu)
 router.get('/getCpuFilters', cpuActions.getCpuFilters)
+router.post('/cpuSuggestion',cpuActions.cpuSuggestion)
 //CPUCOOLER
 router.get('/cpuCooler', cpuCoolerActions.getAllCpuCooler)
 router.get('/getOneCpuCooler',cpuCoolerActions.getOneCpuCooler)
@@ -66,6 +67,8 @@ router.post('/addCart' ,userActions.addCart)
 router.get('/getCart' ,userActions.getCart)  
 router.delete('/deleteItemCart',userActions.deleteItemCart)
 router.post('/getProduct',productActions.getProduct)
+router.post('/deleteProduct',userActions.deleteProduct)
+router.post('/updateUser',userActions.updateUser)
 
 
 
