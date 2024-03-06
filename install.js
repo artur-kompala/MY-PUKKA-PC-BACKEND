@@ -1,0 +1,26 @@
+const { exec } = require('child_process');
+const path = require('path');
+
+const packagesToInstall = [
+    'api@^6.1.1',
+    'bcrypt@^5.1.1',
+    'cors@^2.8.5',
+    'csv-parser@^3.0.0',
+    'dotenv@^16.3.1',
+    'express@^4.18.2',
+    'jsonwebtoken@^9.0.2',
+    'mongodb@^6.3.0',
+    'mongoose@^8.0.3',
+    'multer@^1.4.5-lts.1',
+    'node-cron@^3.0.3'
+];
+
+console.log('Instalowanie pakietów...');
+exec(`npm install ${packagesToInstall.join(' ')}`, (error, stdout, stderr) => {
+    if (error) {
+        console.error('Błąd podczas instalacji pakietów:', error);
+        return;
+    }
+    console.log(stdout);
+
+});

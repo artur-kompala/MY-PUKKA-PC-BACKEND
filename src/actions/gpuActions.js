@@ -2,66 +2,31 @@ const Gpu = require("../db/models/gpu");
 const { itemsPerPage } = require("../config");
 class GpuActions {
   async getAllGpu(req, res) {
-    let {
-      page,
-      sortBy,
-      manufactures,
-      chipset,
-      pcie,
-      fg,
-      memoryMin,
-      memoryMax,
-      priceMin,
-      priceMax,
-    } = req.query;
-    console.log(manufactures);
+    const {page,sortBy, manufactures,chipset,pcie,fg,memoryMin,memoryMax,priceMin,priceMax} = req.query;
 
     const [field, order] = sortBy.split("-");
-    order === "asc" ? 1 : -1;
     const skip = (page - 1) * itemsPerPage;
+
     let query = {};
-
-    if (manufactures !== "All") {
-      query.manufacture = manufactures;
-    }
-    if (fg !== "All") {
-      query.fg = fg;
-    }
-    if (pcie !== "All") {
-      query.pcie = parseInt(pcie);
-    }
-    if (chipset !== "All") {
-      query.chipset = chipset;
-    }
-    if (priceMin && priceMax) {
-      query.price = { $gte: priceMin, $lte: priceMax };
-    }
-    if (memoryMin && memoryMax) {
-      query.memory = { $gte: memoryMin, $lte: memoryMax };
-    }
-    if (
-      manufactures == "null" ||
-      fg == "null" ||
-      pcie == "null" ||
-      chipset == "null"
-    ) {
-      query = {};
-    }
-    console.log(query);
-
+    if (manufactures !== "All" && manufactures !== 'null') query.manufacture = manufactures;
+    if (fg !== "All" && fg !== 'null') query.fg = fg;
+    if (pcie !== "All" && pcie !== 'null') query.pcie = parseInt(pcie);
+    if (chipset !== "All" && chipset !== 'null') query.chipset = chipset;
+    if (priceMin && priceMax && priceMin !== 'null') query.price = { $gte: priceMin, $lte: priceMax };
+    if (memoryMin && memoryMax && memoryMin !== 'null') query.memory = { $gte: memoryMin, $lte: memoryMax };
 
     const totalCount = await Gpu.countDocuments(query);
-
+    console.log(order);
     Gpu.find(query)
       .sort({ [field]: order })
       .skip(skip)
       .limit(itemsPerPage)
       .then((doc) => {
-        return res.status(200).json({ data: doc, total: totalCount });
+        return res.status(200).json({ gpus: doc, count: totalCount });
       })
       .catch((err) => {
         return res.status(500).json({ message: err.message });
-      });
+      }); 
   }
 
   async getOneGpu(req, res) {
@@ -136,7 +101,7 @@ class GpuActions {
     const {_id,price,score} = req.body
 
     try {
-        Gpu.find({score: {$gt: score},price: {$lt: price},_id: {$ne: _id}}).then((doc)=>{
+        Gpu.find({score: {$gte: score},price: {$lt: price},_id: {$ne: _id}}).then((doc)=>{
           return res.status(200).json(doc)
         })
     } catch (error) {

@@ -28,6 +28,7 @@ class UserActions {
         email: req.body.email,
         password: req.body.password,
       };
+      console.log(req.body.fullName);
       const existingUser = await User.findOne({ email: data.email });
       if (existingUser) {
         return res.status(406).send("Użytkownik już istnieje");
@@ -41,14 +42,12 @@ class UserActions {
           .json({ message: "Użytkownik został zarejestrowany" });
       }
     } catch (error) {
-      return res.status(500).send("Wewnętrzny błąd serwera");
+      return res.status(500).send("Błędne dane");
     }
   }
   async loginUser(req, res) {
     try {
       const check = await User.findOne({ email: req.body.email });
-      console.log(check.email);
-      console.log(check.admin);
       if (!check) {
         return res.status(401).json({
           error: "User not found",
@@ -85,13 +84,12 @@ class UserActions {
   }
   async verifyUser(req, res) {
     const token = req.body.token;
-
     if (!token) {
       return res
         .status(401)
         .json({ error: "Unauthorized", message: "Token not provided." });
     }
-    jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
+    jwt.verify(token, process.env.SECRET_KEY, (err) => {
       if (err) {
         return res
           .status(401)
@@ -297,34 +295,41 @@ class UserActions {
     }
   }
   async updateUser(req, res) {
-    const { password, user, fullName } = req.query;
-    if (fullName && user && fullName !== 'undefined') {
-      try {
-        const updatedUser = await User.findOneAndUpdate(
-          { email: user },
-          { $set: { fullName: fullName } }
-        );
-        res.status(200).json(updatedUser);
-      } catch (error) {
-        console.error("Error updating user:", error);
-        res.status(500).json({ error: "Could not update user" });
-      }
-    }
-    if (password && user && password !== 'undefined') {
-      try {
+    const { password, user, fullName } = req.query;   
+    try {
+      if (password && user && password !== "undefined") {
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(password, saltRounds);
         const updatedUser = await User.findOneAndUpdate(
           { email: user },
           { $set: { password: hashedPassword } }
         );
-        res.status(200).json(updatedUser);
-      } catch (error) {
-        console.error("Error updating user:", error);
-        res.status(500).json({ error: "Could not update user" });
       }
+      if (fullName && user && fullName !== "undefined") {
+        const updatedUser = await User.findOneAndUpdate(
+          { email: user },
+          { $set: { fullName: fullName } }
+        );
+      }
+      const check = await User.findOne({ email: user });
+      const token = jwt.sign({ userId: check._id }, process.env.SECRET_KEY, {
+        expiresIn: "1h",
+      });
+      return res.status(200).json({
+        session: { token },
+        user: {
+          role: "authenticated",
+          user_metadata: {
+            fullName: check.fullName,
+            email: check.email,
+            admin: check.admin,
+          },
+        },
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send("Internal Server Error");
     }
-    return;
   }
 }
 module.exports = new UserActions();

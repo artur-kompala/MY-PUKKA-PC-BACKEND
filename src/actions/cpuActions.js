@@ -101,9 +101,7 @@ class CpuActions {
   }
   async cpuSuggestion(req,res){
     const {_id,price,score} = req.body
-  console.log(price);
-  console.log(score);
-  console.log(_id);
+ 
     try {
         Cpu.find({benchmark: {$gt: score},price: {$lt: price},_id: {$ne: _id}}).then((doc)=>{
           console.log(doc);
